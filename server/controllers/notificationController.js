@@ -1,12 +1,12 @@
-const { Notification, User } = require('../models');
-const { Op } = require('sequelize');
+import { Notification, User } from '../models/index.js';
+import { Op } from 'sequelize';
 
 /**
  * @desc    Dapatkan semua notifikasi user
  * @route   GET /api/notifications
  * @access  Private
  */
-exports.getUserNotifications = async (req, res) => {
+export const getUserNotifications = async (req, res) => {
   try {
     const userId = req.user.id;
     const page = parseInt(req.query.page) || 1;
@@ -70,7 +70,7 @@ exports.getUserNotifications = async (req, res) => {
  * @route   PUT /api/notifications/:id/read
  * @access  Private
  */
-exports.markAsRead = async (req, res) => {
+export const markAsRead = async (req, res) => {
   try {
     const notificationId = req.params.id;
     
@@ -117,7 +117,7 @@ exports.markAsRead = async (req, res) => {
  * @route   PUT /api/notifications/read-all
  * @access  Private
  */
-exports.markAllAsRead = async (req, res) => {
+export const markAllAsRead = async (req, res) => {
   try {
     const userId = req.user.id;
     
@@ -146,7 +146,7 @@ exports.markAllAsRead = async (req, res) => {
  * @route   DELETE /api/notifications/:id
  * @access  Private
  */
-exports.deleteNotification = async (req, res) => {
+export const deleteNotification = async (req, res) => {
   try {
     const notificationId = req.params.id;
     
@@ -190,7 +190,7 @@ exports.deleteNotification = async (req, res) => {
  * @route   GET /api/notifications/unread-count
  * @access  Private
  */
-exports.getUnreadCount = async (req, res) => {
+export const getUnreadCount = async (req, res) => {
   try {
     const userId = req.user.id;
     

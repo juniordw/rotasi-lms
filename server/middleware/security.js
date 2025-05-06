@@ -1,7 +1,7 @@
-const helmet = require('helmet');
+import helmet from 'helmet';
 
 /**
- * Konfigurasi helmet untuk menambahkan security headers
+ * Helmet configuration to add security headers
  */
 const securityHeaders = helmet({
   contentSecurityPolicy: {
@@ -22,7 +22,7 @@ const securityHeaders = helmet({
   noSniff: true,
   referrerPolicy: { policy: 'same-origin' },
   hsts: {
-    maxAge: 15552000, // 180 hari
+    maxAge: 15552000, // 180 days
     includeSubDomains: true,
     preload: true
   },
@@ -31,4 +31,4 @@ const securityHeaders = helmet({
   }
 });
 
-module.exports = securityHeaders;
+export default securityHeaders;

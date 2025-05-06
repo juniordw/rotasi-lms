@@ -1,7 +1,7 @@
-const Joi = require('joi');
+import Joi from 'joi';
 
 // Validasi registrasi
-exports.validateRegistration = (data) => {
+export const validateRegistration = (data) => {
   const schema = Joi.object({
     username: Joi.string().alphanum().min(3).max(30).required()
       .messages({
@@ -44,7 +44,7 @@ exports.validateRegistration = (data) => {
 };
 
 // Validasi login
-exports.validateLogin = (data) => {
+export const validateLogin = (data) => {
   const schema = Joi.object({
     email: Joi.string().email().required()
       .messages({
@@ -64,7 +64,7 @@ exports.validateLogin = (data) => {
 };
 
 // Validasi user update
-exports.validateUserUpdate = (data) => {
+export const validateUserUpdate = (data) => {
   const schema = Joi.object({
     full_name: Joi.string().min(2).max(100)
       .messages({
@@ -102,7 +102,7 @@ exports.validateUserUpdate = (data) => {
 };
 
 // Validasi course
-exports.validateCourse = (data) => {
+export const validateCourse = (data) => {
   const schema = Joi.object({
     title: Joi.string().min(5).max(100).required()
       .messages({
@@ -143,7 +143,7 @@ exports.validateCourse = (data) => {
 };
 
 // Validasi lesson
-exports.validateLesson = (data) => {
+export const validateLesson = (data) => {
   const schema = Joi.object({
     title: Joi.string().min(3).max(100).required()
       .messages({
@@ -182,7 +182,7 @@ exports.validateLesson = (data) => {
 };
 
 // Validasi quiz
-exports.validateQuiz = (data) => {
+export const validateQuiz = (data) => {
   const schema = Joi.object({
     title: Joi.string().min(3).max(100).required()
       .messages({
@@ -211,7 +211,7 @@ exports.validateQuiz = (data) => {
 };
 
 // Validasi question
-exports.validateQuestion = (data) => {
+export const validateQuestion = (data) => {
   const schema = Joi.object({
     question_text: Joi.string().min(3).required()
       .messages({
@@ -252,7 +252,7 @@ exports.validateQuestion = (data) => {
 };
 
 // Validasi discussion
-exports.validateDiscussion = (data) => {
+export const validateDiscussion = (data) => {
     const schema = Joi.object({
       course_id: Joi.number().required()
         .messages({
@@ -284,7 +284,7 @@ exports.validateDiscussion = (data) => {
   };
   
   // Validasi comment
-  exports.validateComment = (data) => {
+  export const validateComment = (data) => {
     const schema = Joi.object({
       content: Joi.string().min(1).required()
         .messages({
@@ -299,7 +299,7 @@ exports.validateDiscussion = (data) => {
   };
   
   // Validasi category
-  exports.validateCategory = (data) => {
+  export const validateCategory = (data) => {
     const schema = Joi.object({
       name: Joi.string().min(2).max(50).required()
         .messages({

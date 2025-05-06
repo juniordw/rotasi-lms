@@ -1,4 +1,4 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
 const lessonController = require('../controllers/lessonController');
 const auth = require('../middleware/auth');
@@ -54,4 +54,4 @@ router.post(
   lessonController.uploadContent
 );
 
-module.exports = router;
+export default lessonRoutes;

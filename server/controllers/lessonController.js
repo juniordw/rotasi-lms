@@ -1,13 +1,15 @@
-const { Lesson, Module, Course, Enrollment, Progress, Quiz, Question } = require('../models');
-const { Op } = require('sequelize');
-const { validateLesson } = require('../utils/validators');
+import { Lesson, Module, Course, Enrollment, Progress, Quiz, Question } from '../models/index.js';
+import { Op } from 'sequelize';
+import { validateLesson } from '../utils/validators.js';
+import path from 'path';
+import fs from 'fs';
 
 /**
  * @desc    Dapatkan detail materi pembelajaran
  * @route   GET /api/lessons/:id
  * @access  Private (Enrolled User, Instructor, Admin)
  */
-exports.getLessonById = async (req, res) => {
+export const getLessonById = async (req, res) => {
   try {
     const lessonId = req.params.id;
     
@@ -133,7 +135,7 @@ exports.getLessonById = async (req, res) => {
  * @route   PUT /api/lessons/:id
  * @access  Private (Instructor yang membuat course, Admin)
  */
-exports.updateLesson = async (req, res) => {
+export const updateLesson = async (req, res) => {
   try {
     const lessonId = req.params.id;
     
@@ -235,7 +237,7 @@ exports.updateLesson = async (req, res) => {
  * @route   DELETE /api/lessons/:id
  * @access  Private (Instructor yang membuat course, Admin)
  */
-exports.deleteLesson = async (req, res) => {
+export const deleteLesson = async (req, res) => {
   try {
     const lessonId = req.params.id;
     
@@ -311,7 +313,7 @@ exports.deleteLesson = async (req, res) => {
  * @route   PUT /api/lessons/:id/reorder
  * @access  Private (Instructor yang membuat course, Admin)
  */
-exports.reorderLesson = async (req, res) => {
+export const reorderLesson = async (req, res) => {
   try {
     const lessonId = req.params.id;
     const { new_order } = req.body;
@@ -395,7 +397,7 @@ exports.reorderLesson = async (req, res) => {
  * @route   PUT /api/lessons/:id/complete
  * @access  Private (Student yang enroll)
  */
-exports.completeLesson = async (req, res) => {
+export const completeLesson = async (req, res) => {
   try {
     const lessonId = req.params.id;
     const userId = req.user.id;
@@ -529,3 +531,53 @@ exports.completeLesson = async (req, res) => {
     });
   }
 };
+
+/**
+ * @desc    Upload konten materi pembelajaran
+ * @route   POST /api/lessons/:id/content
+ * @access  Private (Instructor yang membuat course, Admin)
+ */
+export const uploadContent = async (req, res) => {
+    try {
+      const lessonId = req.params.id;
+      
+      // Pastikan file terupload
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: 'Tidak ada file yang diupload'
+        });
+      }
+      
+      // Dapatkan file path
+      const contentUrl = `/uploads/lessons/${req.file.filename}`;
+      
+      // Update content_url lesson
+      const [updated] = await Lesson.update(
+        { content_url: contentUrl },
+        { where: { id: lessonId } }
+      );
+      
+      if (!updated) {
+        return res.status(404).json({
+          success: false,
+          message: 'Materi pembelajaran tidak ditemukan'
+        });
+      }
+      
+      res.json({
+        success: true,
+        message: 'Konten berhasil diupload',
+        data: {
+          content_url: contentUrl
+        }
+      });
+    } catch (error) {
+      console.error('Upload lesson content error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
+    }
+  };

@@ -1,13 +1,13 @@
-const { Quiz, Question, Answer, UserAnswer, Enrollment, Lesson, Module, Course, Progress } = require('../models');
-const { Op } = require('sequelize');
-const { validateQuiz, validateQuestion } = require('../utils/validators');
+import { Quiz, Question, Answer, UserAnswer, Enrollment, Lesson, Module, Course, Progress } from '../models/index.js';
+import { Op } from 'sequelize';
+import { validateQuiz, validateQuestion } from '../utils/validators.js';
 
 /**
  * @desc    Dapatkan detail quiz
  * @route   GET /api/quizzes/:id
  * @access  Private (Enrolled User, Instructor, Admin)
  */
-exports.getQuizById = async (req, res) => {
+export const getQuizById = async (req, res) => {
   try {
     const quizId = req.params.id;
     
@@ -154,7 +154,7 @@ exports.getQuizById = async (req, res) => {
  * @route   PUT /api/quizzes/:id
  * @access  Private (Instructor yang membuat course, Admin)
  */
-exports.updateQuiz = async (req, res) => {
+export const updateQuiz = async (req, res) => {
   try {
     const quizId = req.params.id;
     
@@ -235,7 +235,7 @@ exports.updateQuiz = async (req, res) => {
  * @route   POST /api/quizzes/:id/questions
  * @access  Private (Instructor yang membuat course, Admin)
  */
-exports.addQuestion = async (req, res) => {
+export const addQuestion = async (req, res) => {
   try {
     const quizId = req.params.id;
     
@@ -394,7 +394,7 @@ exports.addQuestion = async (req, res) => {
  * @route   POST /api/quizzes/:id/submit
  * @access  Private (Student yang enroll)
  */
-exports.submitQuiz = async (req, res) => {
+export const submitQuiz = async (req, res) => {
   try {
     const quizId = req.params.id;
     const userId = req.user.id;
@@ -579,7 +579,7 @@ exports.submitQuiz = async (req, res) => {
  * @route   PUT /api/quizzes/:id/grade
  * @access  Private (Instructor yang membuat course, Admin)
  */
-exports.gradeEssay = async (req, res) => {
+export const gradeEssay = async (req, res) => {
     try {
       const quizId = req.params.id;
       const { grades } = req.body;
@@ -670,7 +670,7 @@ exports.gradeEssay = async (req, res) => {
    * @route   GET /api/quizzes/:id/results
    * @access  Private (Instructor yang membuat course, Admin)
    */
-  exports.getQuizResults = async (req, res) => {
+  export const getQuizResults = async (req, res) => {
     try {
       const quizId = req.params.id;
       

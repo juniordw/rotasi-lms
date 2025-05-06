@@ -1,36 +1,36 @@
-const cors = require('cors');
+import corsPackage from 'cors';
 
 /**
- * Konfigurasi CORS untuk keamanan
- * Mengatur origin, method, dan header yang diizinkan
+ * CORS configuration for security
+ * Set allowed origins, methods, and headers
  */
 const corsOptions = {
   origin: function(origin, callback) {
     // Allow requests with no origin (like mobile apps, curl, postman)
     if (!origin) return callback(null, true);
     
-    // Daftar origin yang diizinkan
+    // List of allowed origins
     const allowedOrigins = [
       process.env.CLIENT_URL || 'http://localhost:3000', // Frontend production
       'http://localhost:3000', // Frontend development
       'https://rotasi.company.com', // Production domain
-      /\.company\.com$/ // Semua subdomain company.com
+      /\.company\.com$/ // All company.com subdomains
     ];
     
-    // Cek apakah origin ada dalam daftar yang diizinkan
+    // Check if origin is in allowed list
     let isAllowed = false;
     
     for (let i = 0; i < allowedOrigins.length; i++) {
       const allowedOrigin = allowedOrigins[i];
       
-      // Jika allowedOrigin adalah RegExp
+      // If allowedOrigin is RegExp
       if (allowedOrigin instanceof RegExp) {
         if (allowedOrigin.test(origin)) {
           isAllowed = true;
           break;
         }
       } 
-      // Jika allowedOrigin adalah string
+      // If allowedOrigin is string
       else if (allowedOrigin === origin) {
         isAllowed = true;
         break;
@@ -40,14 +40,15 @@ const corsOptions = {
     if (isAllowed) {
       callback(null, true);
     } else {
-      callback(new Error('CORS tidak diizinkan'), false);
+      callback(new Error('CORS not allowed'), false);
     }
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  exposedHeaders: ['Content-Disposition'], // Untuk download file
+  exposedHeaders: ['Content-Disposition'], // For file downloads
   credentials: true,
-  maxAge: 86400 // 24 jam
+  maxAge: 86400 // 24 hours
 };
 
-module.exports = cors(corsOptions);
+const cors = corsPackage(corsOptions);
+export default cors;

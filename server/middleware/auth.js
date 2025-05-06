@@ -1,25 +1,25 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
 
-module.exports = (req, res, next) => {
+const auth = (req, res, next) => {
   try {
-    // Ambil token dari header Authorization
+    // Get token from Authorization header
     const authHeader = req.header('Authorization');
     
     if (!authHeader) {
       return res.status(401).json({ message: 'Akses ditolak. Token tidak ditemukan' });
     }
     
-    // Format: "Bearer [token]" - ekstrak token
+    // Format: "Bearer [token]" - extract token
     const token = authHeader.split(' ')[1];
     
     if (!token) {
       return res.status(401).json({ message: 'Akses ditolak. Format token tidak valid' });
     }
 
-    // Verifikasi token
+    // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
-    // Tambahkan user info ke request object
+    // Add user info to request object
     req.user = decoded;
     
     next();
@@ -31,3 +31,5 @@ module.exports = (req, res, next) => {
     res.status(401).json({ message: 'Token tidak valid' });
   }
 };
+
+export default auth;

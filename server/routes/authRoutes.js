@@ -1,6 +1,6 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const authController = require('../controllers/authController');
+import { changePassword, getCurrentUser, login, logout, refreshToken, register } from '../controllers/authController.js'; 
 const auth = require('../middleware/auth');
 const rateLimit = require('express-rate-limit');
 
@@ -41,41 +41,41 @@ const registerLimiter = rateLimit({
  * @desc    Register user baru
  * @access  Public
  */
-router.post('/register', registerLimiter, authController.register);
+router.post('/register', registerLimiter, register);
 
 /**
  * @route   POST /api/auth/login
  * @desc    Login user dan dapatkan token
  * @access  Public
  */
-router.post('/login', loginLimiter, authController.login);
+router.post('/login', loginLimiter, login);
 
 /**
  * @route   POST /api/auth/refresh-token
  * @desc    Refresh access token menggunakan refresh token
  * @access  Public (with refresh token)
  */
-router.post('/refresh-token', authController.refreshToken);
+router.post('/refresh-token', refreshToken);
 
 /**
  * @route   POST /api/auth/logout
  * @desc    Logout user dan invalidate refresh token
  * @access  Private
  */
-router.post('/logout', auth, authController.logout);
+router.post('/logout', auth, logout);
 
 /**
  * @route   GET /api/auth/me
  * @desc    Dapatkan info user yang sedang login
  * @access  Private
  */
-router.get('/me', auth, authController.getCurrentUser);
+router.get('/me', auth, getCurrentUser);
 
 /**
  * @route   PUT /api/auth/change-password
  * @desc    Ubah password user
  * @access  Private
  */
-router.put('/change-password', auth, authController.changePassword);
+router.put('/change-password', auth, changePassword);
 
-module.exports = router;
+export default authRoutes;

@@ -1,16 +1,21 @@
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-const { v4: uuidv4 } = require('uuid');
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+import { v4 as uuidv4 } from 'uuid';
+import { fileURLToPath } from 'url';
+
+// __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
- * Konfigurasi penyimpanan file upload menggunakan multer
+ * Configure file upload storage using multer
  */
 const storage = multer.diskStorage({
-  // Tentukan direktori penyimpanan file
+  // Determine storage directory
   destination: function(req, file, cb) {
-    // Tentukan folder berdasarkan jenis file
-    let uploadPath = 'uploads/';
+    // Set folder based on file type
+    let uploadPath = path.join(__dirname, '..', 'uploads', '');
     
     switch (file.fieldname) {
       case 'avatar':
@@ -29,7 +34,7 @@ const storage = multer.diskStorage({
         uploadPath += 'misc/';
     }
     
-    // Buat direktori jika belum ada
+    // Create directory if it doesn't exist
     if (!fs.existsSync(uploadPath)) {
       fs.mkdirSync(uploadPath, { recursive: true });
     }
@@ -37,7 +42,7 @@ const storage = multer.diskStorage({
     cb(null, uploadPath);
   },
   
-  // Generate nama file yang unik
+  // Generate unique filename
   filename: function(req, file, cb) {
     // Format: fieldname-uuid-timestamp.extension
     const uniqueId = uuidv4();
@@ -50,10 +55,10 @@ const storage = multer.diskStorage({
 });
 
 /**
- * Filter untuk membatasi jenis file yang dapat diupload
+ * Filter to limit file types
  */
 const fileFilter = (req, file, cb) => {
-  // Tentukan tipe file yang diizinkan berdasarkan fieldname
+  // Determine allowed file types based on fieldname
   let allowedTypes = [];
   
   switch (file.fieldname) {
@@ -81,7 +86,7 @@ const fileFilter = (req, file, cb) => {
       allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
   }
   
-  // Validasi tipe file
+  // Validate file type
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
@@ -90,7 +95,7 @@ const fileFilter = (req, file, cb) => {
 };
 
 /**
- * Konfigurasi multer
+ * Configure multer
  */
 const upload = multer({
   storage: storage,
@@ -101,7 +106,7 @@ const upload = multer({
 });
 
 /**
- * Middleware untuk handle error multer
+ * Middleware to handle multer errors
  */
 const handleUploadError = (err, req, res, next) => {
   if (err instanceof multer.MulterError) {
@@ -127,8 +132,5 @@ const handleUploadError = (err, req, res, next) => {
   next();
 };
 
-// Export middleware dan handler
-module.exports = {
-  upload,
-  handleUploadError
-};
+// Export middleware and handler
+export { upload, handleUploadError };

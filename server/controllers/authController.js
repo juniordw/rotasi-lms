@@ -1,16 +1,16 @@
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const { User, RefreshToken } = require('../models');
-const { Op } = require('sequelize');
-const { validateRegistration, validateLogin } = require('../utils/validators');
-const crypto = require('crypto');
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { User, RefreshToken, Enrollment, Notification, Course } from '../models/index.js';
+import { Op } from 'sequelize';
+import { validateRegistration, validateLogin } from '../utils/validators.js';
+import crypto from 'crypto';
 
 /**
  * @desc    Register user
  * @route   POST /api/auth/register
  * @access  Public
  */
-exports.register = async (req, res) => {
+export const register = async (req, res) => {
   try {
     // Validasi input menggunakan Joi
     const { error } = validateRegistration(req.body);
@@ -101,7 +101,7 @@ exports.register = async (req, res) => {
  * @route   POST /api/auth/login
  * @access  Public
  */
-exports.login = async (req, res) => {
+export const login = async (req, res) => {
   try {
     // Validasi input menggunakan Joi
     const { error } = validateLogin(req.body);
@@ -187,7 +187,7 @@ exports.login = async (req, res) => {
  * @route   GET /api/auth/me
  * @access  Private
  */
-exports.getCurrentUser = async (req, res) => {
+export const getCurrentUser = async (req, res) => {
   try {
     // Cari user berdasarkan id (dari token)
     // Exclude password dari hasil query
@@ -270,7 +270,7 @@ const generateRefreshToken = async (userId) => {
  * @route   POST /api/auth/refresh-token
  * @access  Public (with refresh token)
  */
-exports.refreshToken = async (req, res) => {
+export const refreshToken = async (req, res) => {
   try {
     const { refreshToken } = req.body;
     
@@ -338,7 +338,7 @@ exports.refreshToken = async (req, res) => {
  * @route   POST /api/auth/logout
  * @access  Private
  */
-exports.logout = async (req, res) => {
+export const logout = async (req, res) => {
   try {
     const { refreshToken } = req.body;
     
@@ -366,7 +366,7 @@ exports.logout = async (req, res) => {
  * @route   PUT /api/auth/change-password
  * @access  Private
  */
-exports.changePassword = async (req, res) => {
+export const changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
     

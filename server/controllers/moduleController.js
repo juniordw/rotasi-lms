@@ -1,12 +1,12 @@
-const { Module, Lesson, Quiz, Course } = require('../models');
-const { Op } = require('sequelize');
+import { Module, Lesson, Quiz, Course, Enrollment, Progress } from '../models/index.js';
+import { Op } from 'sequelize';
 
 /**
  * @desc    Dapatkan detail modul
  * @route   GET /api/modules/:id
  * @access  Private (Enrolled User, Instructor, Admin)
  */
-exports.getModuleById = async (req, res) => {
+export const getModuleById = async (req, res) => {
   try {
     const moduleId = req.params.id;
     
@@ -82,7 +82,7 @@ exports.getModuleById = async (req, res) => {
  * @route   PUT /api/modules/:id
  * @access  Private (Instructor yang membuat course, Admin)
  */
-exports.updateModule = async (req, res) => {
+export const updateModule = async (req, res) => {
   try {
     const moduleId = req.params.id;
     const { title, description } = req.body;
@@ -136,7 +136,7 @@ exports.updateModule = async (req, res) => {
  * @route   DELETE /api/modules/:id
  * @access  Private (Instructor yang membuat course, Admin)
  */
-exports.deleteModule = async (req, res) => {
+export const deleteModule = async (req, res) => {
   try {
     const moduleId = req.params.id;
     
@@ -183,7 +183,7 @@ exports.deleteModule = async (req, res) => {
  * @route   POST /api/modules/:id/lessons
  * @access  Private (Instructor yang membuat course, Admin)
  */
-exports.addLesson = async (req, res) => {
+export const addLesson = async (req, res) => {
   try {
     const moduleId = req.params.id;
     
@@ -287,7 +287,7 @@ exports.addLesson = async (req, res) => {
  * @route   PUT /api/modules/:id/reorder
  * @access  Private (Instructor yang membuat course, Admin)
  */
-exports.reorderModule = async (req, res) => {
+export const reorderModule = async (req, res) => {
   try {
     const moduleId = req.params.id;
     const { new_order } = req.body;
@@ -364,7 +364,7 @@ exports.reorderModule = async (req, res) => {
  * @route   GET /api/modules/:id/lessons
  * @access  Private (Enrolled User, Instructor, Admin)
  */
-exports.getModuleLessons = async (req, res) => {
+export const getModuleLessons = async (req, res) => {
     try {
       const moduleId = req.params.id;
       

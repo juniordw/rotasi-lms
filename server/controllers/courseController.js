@@ -1,13 +1,14 @@
-const { Course, Module, Lesson, Enrollment, User, Category, Progress } = require('../models');
-const { Op } = require('sequelize');
-const { validateCourse } = require('../utils/validators');
+import db from "../models/index.js";
+const { Course, Module, Lesson, Enrollment, User, Category, Progress, Notification, Certificate } = db;
+import { Op } from 'sequelize';
+import { validateCourse } from '../utils/validators.js';
 
 /**
  * @desc    Mendapatkan semua kursus yang dipublish
  * @route   GET /api/courses
  * @access  Public
  */
-exports.getAllPublishedCourses = async (req, res) => {
+export const getAllPublishedCourses = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -80,7 +81,7 @@ exports.getAllPublishedCourses = async (req, res) => {
  * @route   GET /api/courses/all
  * @access  Private (Admin, Instructor)
  */
-exports.getAllCourses = async (req, res) => {
+export const getAllCourses = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -157,7 +158,7 @@ exports.getAllCourses = async (req, res) => {
  * @route   GET /api/courses/my-courses
  * @access  Private (Instructor)
  */
-exports.getInstructorCourses = async (req, res) => {
+export const getInstructorCourses = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -246,7 +247,7 @@ exports.getInstructorCourses = async (req, res) => {
  * @route   GET /api/courses/enrolled
  * @access  Private
  */
-exports.getEnrolledCourses = async (req, res) => {
+export const getEnrolledCourses = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -358,7 +359,7 @@ exports.getEnrolledCourses = async (req, res) => {
  * @route   GET /api/courses/:id
  * @access  Public untuk kursus published, Private untuk draft
  */
-exports.getCourseById = async (req, res) => {
+export const getCourseById = async (req, res) => {
   try {
     const courseId = req.params.id;
     
@@ -472,7 +473,7 @@ exports.getCourseById = async (req, res) => {
  * @route   POST /api/courses
  * @access  Private (Admin, Instructor)
  */
-exports.createCourse = async (req, res) => {
+export const createCourse = async (req, res) => {
   try {
     // Validasi input
     const { error } = validateCourse(req.body);
@@ -518,7 +519,7 @@ exports.createCourse = async (req, res) => {
  * @route   PUT /api/courses/:id
  * @access  Private (Admin, Instructor yang membuat kursus)
  */
-exports.updateCourse = async (req, res) => {
+export const updateCourse = async (req, res) => {
   try {
     const courseId = req.params.id;
     
@@ -586,7 +587,7 @@ exports.updateCourse = async (req, res) => {
  * @route   DELETE /api/courses/:id
  * @access  Private (Admin saja)
  */
-exports.deleteCourse = async (req, res) => {
+export const deleteCourse = async (req, res) => {
   try {
     const courseId = req.params.id;
     
@@ -633,8 +634,8 @@ exports.deleteCourse = async (req, res) => {
  * @route   POST /api/courses/:id/publish
  * @access  Private (Admin, Instructor yang membuat kursus)
  */
-exports.publishCourse = async (req, res) => {
-    try {
+export const publishCourse = async (req, res) => {
+  try {
       const courseId = req.params.id;
       
       // Get course with modules and lessons
@@ -713,7 +714,7 @@ exports.publishCourse = async (req, res) => {
    * @route   POST /api/courses/:id/enroll
    * @access  Private
    */
-  exports.enrollCourse = async (req, res) => {
+  export const enrollCourse = async (req, res) => {
     try {
       const courseId = req.params.id;
       const userId = req.user.id;
@@ -798,7 +799,7 @@ exports.publishCourse = async (req, res) => {
    * @route   GET /api/courses/:id/modules
    * @access  Private (Enrolled User)
    */
-  exports.getCourseModules = async (req, res) => {
+  export const getCourseModules = async (req, res) => {
     try {
       const courseId = req.params.id;
       const userId = req.user.id;
@@ -918,7 +919,7 @@ exports.publishCourse = async (req, res) => {
    * @route   POST /api/courses/:id/modules
    * @access  Private (Admin, Instructor yang membuat kursus)
    */
-  exports.addModule = async (req, res) => {
+  export const addModule = async (req, res) => {
     try {
       const courseId = req.params.id;
       
@@ -970,7 +971,7 @@ exports.publishCourse = async (req, res) => {
    * @route   GET /api/courses/:id/students
    * @access  Private (Admin, Instructor yang membuat kursus)
    */
-  exports.getCourseStudents = async (req, res) => {
+  export const getCourseStudents = async (req, res) => {
     try {
       const courseId = req.params.id;
       const page = parseInt(req.query.page) || 1;
@@ -1064,7 +1065,7 @@ exports.publishCourse = async (req, res) => {
    * @route   POST /api/courses/:id/certificate
    * @access  Private
    */
-  exports.generateCertificate = async (req, res) => {
+  export const generateCertificate = async (req, res) => {
     try {
       const courseId = req.params.id;
       const userId = req.user.id;

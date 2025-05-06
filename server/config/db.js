@@ -1,8 +1,18 @@
-// server/config/db.js
-const { Sequelize } = require('sequelize');
-const config = require('./config.json')[process.env.NODE_ENV || 'development'];
+import { Sequelize } from 'sequelize';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// Buat koneksi database
+// __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Read config file
+const configPath = path.join(__dirname, 'config.json');
+const configFile = fs.readFileSync(configPath, 'utf8');
+const config = JSON.parse(configFile)[process.env.NODE_ENV || 'development'];
+
+// Create database connection
 const sequelize = new Sequelize(
   config.database,
   config.username,
@@ -18,28 +28,25 @@ const sequelize = new Sequelize(
       idle: 10000
     },
     define: {
-      underscored: true, // Gunakan snake_case untuk nama kolom
+      underscored: true, // Use snake_case for column names
       timestamps: true,
       createdAt: 'created_at',
       updatedAt: 'updated_at'
     },
-    timezone: '+07:00' // Waktu Indonesia Barat
+    timezone: '+07:00' // Western Indonesia Time
   }
 );
 
-// Fungsi untuk menguji koneksi database
+// Function to test database connection
 const testConnection = async () => {
   try {
     await sequelize.authenticate();
-    console.log('Koneksi database berhasil.');
+    console.log('Database connection successful.');
     return true;
   } catch (error) {
-    console.error('Koneksi database gagal:', error);
+    console.error('Database connection failed:', error);
     return false;
   }
 };
 
-module.exports = {
-  sequelize,
-  testConnection
-};
+export { sequelize, testConnection };

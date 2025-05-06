@@ -1,6 +1,6 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const moduleController = require('../controllers/moduleController');
+import moduleController from '../controllers/moduleController';
 const auth = require('../middleware/auth');
 const roleAuth = require('../middleware/roleAuth');
 const ownershipCheck = require('../middleware/ownershipCheck');
@@ -102,4 +102,4 @@ router.put('/:id/reorder', auth, moduleOwnershipCheck, moduleController.reorderM
  */
 router.get('/:id/lessons', auth, moduleController.getModuleLessons);
 
-module.exports = router;
+export default moduleRoutes;

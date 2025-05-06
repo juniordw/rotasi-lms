@@ -1,15 +1,15 @@
-const { Certificate, User, Course, Enrollment } = require('../models');
-const { Op } = require('sequelize');
-const path = require('path');
-const fs = require('fs');
-const PDFDocument = require('pdfkit');
+import { Certificate, User, Course, Enrollment, Notification } from '../models/index.js';
+import { Op } from 'sequelize';
+import path from 'path';
+import fs from 'fs';
+import PDFDocument from 'pdfkit';
 
 /**
  * @desc    Dapatkan semua sertifikat user
  * @route   GET /api/certificates
  * @access  Private
  */
-exports.getUserCertificates = async (req, res) => {
+export const getUserCertificates = async (req, res) => {
   try {
     const userId = req.user.id;
     
@@ -52,7 +52,7 @@ exports.getUserCertificates = async (req, res) => {
  * @route   GET /api/certificates/:id
  * @access  Private
  */
-exports.getCertificateById = async (req, res) => {
+export const getCertificateById = async (req, res) => {
   try {
     const certificateId = req.params.id;
     
@@ -117,7 +117,7 @@ exports.getCertificateById = async (req, res) => {
  * @route   POST /api/certificates/generate
  * @access  Private (Admin, Instructor)
  */
-exports.generateCertificate = async (req, res) => {
+export const generateCertificate = async (req, res) => {
     try {
       const { user_id, course_id } = req.body;
       
@@ -229,7 +229,7 @@ exports.generateCertificate = async (req, res) => {
    * @route   GET /api/certificates/:id/download
    * @access  Private
    */
-  exports.downloadCertificate = async (req, res) => {
+  export const downloadCertificate = async (req, res) => {
     try {
       const certificateId = req.params.id;
       
@@ -311,7 +311,7 @@ exports.generateCertificate = async (req, res) => {
    * @route   POST /api/certificates/verify
    * @access  Public
    */
-  exports.verifyCertificate = async (req, res) => {
+  export const verifyCertificate = async (req, res) => {
     try {
       const { certificate_id } = req.body;
       

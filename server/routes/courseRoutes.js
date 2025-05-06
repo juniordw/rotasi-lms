@@ -1,6 +1,6 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const courseController = require('../controllers/courseController');
+import * as courseController from '../controllers/courseController.js';
 const auth = require('../middleware/auth');
 const roleAuth = require('../middleware/roleAuth');
 const ownershipCheck = require('../middleware/ownershipCheck');
@@ -124,4 +124,4 @@ router.get('/:id/students',
  */
 router.post('/:id/certificate', auth, courseController.generateCertificate);
 
-module.exports = router;
+export default courseRoutes;

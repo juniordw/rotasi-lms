@@ -1,6 +1,5 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const discussionController = require('../controllers/discussionController');
 const auth = require('../middleware/auth');
 
 /**
@@ -38,4 +37,4 @@ router.post('/', auth, discussionController.createDiscussion);
  */
 router.post('/:id/comments', auth, discussionController.addComment);
 
-module.exports = router;
+export default discussionRoutes;

@@ -1,15 +1,17 @@
-// server/server.js
+import dotenv from 'dotenv';
+dotenv.config();
 
-const app = require('./app');
-const { sequelize } = require('./models');
+import app from './app.js';
+import db from './models/index.js';
+const { sequelize } = db;
 
 // Port
 const PORT = process.env.PORT || 5000;
 
-// Mulai server
+// Start server
 const startServer = async () => {
   try {
-    // Sinkronisasi database (dalam development saja)
+    // Sync database (in development only)
     if (process.env.NODE_ENV === 'development') {
       await sequelize.sync({ alter: true });
       console.log('Database synced');

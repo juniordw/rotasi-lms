@@ -1,41 +1,48 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const notificationController = require('..\controllers\notificationController');
 const auth = require('../middleware/auth');
+const roleAuth = require('../middleware/roleAuth');
+const { generateCertificate } = require('../controllers/certificateController.JS');
+const { getUserCertificates, getCertificateById, downloadCertificate, verifyCertificate } = require('../controllers/certificateController.JS');
 
 /**
- * @route   GET /api/notifications
- * @desc    Dapatkan semua notifikasi user
+ * @route   GET /api/certificates
+ * @desc    Dapatkan semua sertifikat user
  * @access  Private
  */
-router.get('/', auth, notificationController.getUserNotifications);
+router.get('/', auth, getUserCertificates);
 
 /**
- * @route   PUT /api/notifications/:id/read
- * @desc    Tandai notifikasi sebagai telah dibaca
+ * @route   GET /api/certificates/:id
+ * @desc    Dapatkan sertifikat berdasarkan ID
  * @access  Private
  */
-router.put('/:id/read', auth, notificationController.markAsRead);
+router.get('/:id', auth, getCertificateById);
 
 /**
- * @route   PUT /api/notifications/read-all
- * @desc    Tandai semua notifikasi sebagai telah dibaca
- * @access  Private
+ * @route   POST /api/certificates/generate
+ * @desc    Generate sertifikat untuk user
+ * @access  Private (Admin, Instructor)
  */
-router.put('/read-all', auth, notificationController.markAllAsRead);
+router.post('/generate', auth, roleAuth('admin', 'instructor'), generateCertificate);
 
 /**
- * @route   DELETE /api/notifications/:id
- * @desc    Hapus notifikasi
+ * @route   GET /api/certificates/:id/download
+ * @desc    Download sertifikat
  * @access  Private
  */
-router.delete('/:id', auth, notificationController.deleteNotification);
+router.get('/:id/download', auth, downloadCertificate);
 
 /**
- * @route   GET /api/notifications/unread-count
- * @desc    Dapatkan jumlah notifikasi yang belum dibaca
- * @access  Private
+ * @route   POST /api/certificates/verify
+ * @desc    Verifikasi sertifikat
+ * @access  Public
  */
-router.get('/unread-count', auth, notificationController.getUnreadCount);
+router.post('/verify', verifyCertificate);
 
-module.exports = router;
+// authRoutes.js
+const authRoutes = () => {
+    // routes code here
+  };
+
+  export default certificateRoutes;

@@ -1,4 +1,4 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
 const quizController = require('../controllers/quizController');
 const auth = require('../middleware/auth');
@@ -46,4 +46,4 @@ router.put('/:id/grade', auth, quizController.gradeEssay);
  */
 router.get('/:id/results', auth, quizController.getQuizResults);
 
-module.exports = router;
+export default quizRoutes;

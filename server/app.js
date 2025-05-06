@@ -1,27 +1,36 @@
-const express = require('express');
-const morgan = require('morgan');
-const path = require('path');
-const cors = require('./middleware/cors');
-const { globalLimiter } = require('./middleware/rateLimiter');
-const securityHeaders = require('./middleware/security');
-const { sequelize } = require('./models');
-const errorHandler = require('./middleware/errorHandler');
+import dotenv from 'dotenv';
+dotenv.config();
+
+import express from 'express';
+import morgan from 'morgan';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import cors from './middleware/cors.js';
+import { globalLimiter } from './middleware/rateLimiter.js';
+import securityHeaders from './middleware/security.js';
+import db from './models/index.js';
+const { sequelize } = db;
+import errorHandler from './middleware/errorHandler.js';
 
 // Import routes
-const authRoutes = require('./routes/authRoutes');
-const userRoutes = require('./routes/userRoutes');
-const courseRoutes = require('./routes/courseRoutes');
-const moduleRoutes = require('./routes/moduleRoutes');
-const lessonRoutes = require('./routes/lessonRoutes');
-const quizRoutes = require('./routes/quizRoutes');
-const discussionRoutes = require('./routes/discussionRoutes');
-const certificateRoutes = require('./routes/certificateRoutes');
-const notificationRoutes = require('./routes/notificationRoutes');
+import authRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import courseRoutes from './routes/courseRoutes.js';
+import moduleRoutes from './routes/moduleRoutes.js';
+import lessonRoutes from './routes/lessonRoutes.js';
+import quizRoutes from './routes/quizRoutes.js';
+import discussionRoutes from './routes/discussionRoutes.js';
+import certificateRoutes from './routes/certificateRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
 
-// Inisialisasi express app
+// __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Initialize express app
 const app = express();
 
-// Middleware untuk logging
+// Middleware for logging
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 } else {
@@ -84,4 +93,4 @@ if (process.env.NODE_ENV === 'development') {
     });
 }
 
-module.exports = app;
+export default app;

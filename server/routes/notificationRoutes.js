@@ -1,4 +1,4 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
 const notificationController = require('../controllers/notificationController');
 const auth = require('../middleware/auth');
@@ -38,4 +38,4 @@ router.delete('/:id', auth, notificationController.deleteNotification);
  */
 router.get('/unread-count', auth, notificationController.getUnreadCount);
 
-module.exports = router;
+export default notificationRoutes;
