@@ -1,10 +1,9 @@
 import express from 'express';
+import { Module, Course } from '../models/index.js';
+import auth from '../middleware/auth.js';
+import { addLesson, deleteModule, getModuleById, getModuleLessons, reorderModule, updateModule } from '../controllers/moduleController.js';
+
 const router = express.Router();
-import moduleController from '../controllers/moduleController';
-const auth = require('../middleware/auth');
-const roleAuth = require('../middleware/roleAuth');
-const ownershipCheck = require('../middleware/ownershipCheck');
-const { Module, Course } = require('../models');
 
 /**
  * Middleware khusus untuk cek kepemilikan modul oleh instructor
@@ -65,41 +64,41 @@ const moduleOwnershipCheck = async (req, res, next) => {
  * @desc    Dapatkan detail modul
  * @access  Private (Enrolled User, Instructor, Admin)
  */
-router.get('/:id', auth, moduleController.getModuleById);
+router.get('/:id', auth, getModuleById);
 
 /**
  * @route   PUT /api/modules/:id
  * @desc    Update modul
  * @access  Private (Instructor yang membuat course, Admin)
  */
-router.put('/:id', auth, moduleOwnershipCheck, moduleController.updateModule);
+router.put('/:id', auth, moduleOwnershipCheck, updateModule);
 
 /**
  * @route   DELETE /api/modules/:id
  * @desc    Hapus modul
  * @access  Private (Instructor yang membuat course, Admin)
  */
-router.delete('/:id', auth, moduleOwnershipCheck, moduleController.deleteModule);
+router.delete('/:id', auth, moduleOwnershipCheck, deleteModule);
 
 /**
  * @route   POST /api/modules/:id/lessons
  * @desc    Tambah materi pembelajaran ke modul
  * @access  Private (Instructor yang membuat course, Admin)
  */
-router.post('/:id/lessons', auth, moduleOwnershipCheck, moduleController.addLesson);
+router.post('/:id/lessons', auth, moduleOwnershipCheck, addLesson);
 
 /**
  * @route   PUT /api/modules/:id/reorder
  * @desc    Ubah urutan modul dalam course
  * @access  Private (Instructor yang membuat course, Admin)
  */
-router.put('/:id/reorder', auth, moduleOwnershipCheck, moduleController.reorderModule);
+router.put('/:id/reorder', auth, moduleOwnershipCheck, reorderModule);
 
 /**
  * @route   GET /api/modules/:id/lessons
  * @desc    Dapatkan semua materi pembelajaran dalam modul
  * @access  Private (Enrolled User, Instructor, Admin)
  */
-router.get('/:id/lessons', auth, moduleController.getModuleLessons);
+router.get('/:id/lessons', auth, getModuleLessons);
 
-export default moduleRoutes;
+export default router;

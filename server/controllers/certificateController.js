@@ -1,5 +1,4 @@
 import { Certificate, User, Course, Enrollment, Notification } from '../models/index.js';
-import { Op } from 'sequelize';
 import path from 'path';
 import fs from 'fs';
 import PDFDocument from 'pdfkit';

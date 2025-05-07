@@ -1,8 +1,5 @@
 import { Lesson, Module, Course, Enrollment, Progress, Quiz, Question } from '../models/index.js';
-import { Op } from 'sequelize';
 import { validateLesson } from '../utils/validators.js';
-import path from 'path';
-import fs from 'fs';
 
 /**
  * @desc    Dapatkan detail materi pembelajaran

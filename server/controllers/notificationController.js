@@ -1,5 +1,4 @@
 import { Notification, User } from '../models/index.js';
-import { Op } from 'sequelize';
 
 /**
  * @desc    Dapatkan semua notifikasi user

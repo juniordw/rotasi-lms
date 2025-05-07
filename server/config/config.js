@@ -1,4 +1,5 @@
-{
+// config/config.js
+export default {
   "development": {
     "username": "postgres",
     "password": "170845",

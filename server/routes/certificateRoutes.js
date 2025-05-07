@@ -1,9 +1,9 @@
 import express from 'express';
 const router = express.Router();
-const auth = require('../middleware/auth');
-const roleAuth = require('../middleware/roleAuth');
-const { generateCertificate } = require('../controllers/certificateController.JS');
-const { getUserCertificates, getCertificateById, downloadCertificate, verifyCertificate } = require('../controllers/certificateController.JS');
+import auth from '../middleware/auth.js';
+import roleAuth from '../middleware/roleAuth.js';
+import { generateCertificate } from '../controllers/certificateController.js';
+import { getUserCertificates, getCertificateById, downloadCertificate, verifyCertificate } from '../controllers/certificateController.js';
 
 /**
  * @route   GET /api/certificates
@@ -45,4 +45,4 @@ const authRoutes = () => {
     // routes code here
   };
 
-  export default certificateRoutes;
+  export default router;

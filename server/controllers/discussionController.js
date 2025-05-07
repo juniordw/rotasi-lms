@@ -1,7 +1,3 @@
-import { Discussion, Comment, User, Course, Lesson } from '../models/index.js';
-import { Op } from 'sequelize';
-import { validateDiscussion, validateComment } from '../utils/validators.js';
-
 /**
  * @desc    Dapatkan semua diskusi dalam kursus
  * @route   GET /api/discussions/course/:courseId

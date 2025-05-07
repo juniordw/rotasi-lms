@@ -1,4 +1,4 @@
-module.exports = (sequelize, DataTypes) => {
+export default (sequelize, DataTypes) => {
     /**
      * Model untuk menyimpan refresh token
      * Digunakan untuk implementasi JWT refresh token

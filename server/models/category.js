@@ -1,6 +1,6 @@
 'use strict';
-import Model from 'sequelize';
-module.exports = (sequelize, DataTypes) => {
+import { Model } from 'sequelize';
+export default (sequelize, DataTypes) => {
   class Category extends Model {
     /**
      * Helper method for defining associations.

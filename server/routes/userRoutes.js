@@ -10,17 +10,17 @@ import {
     getUserCertificates,
     getUserDashboardStats
   } from '../controllers/userController.js';
+import auth from '../middleware/auth.js';
 const router = express.Router();
-const auth = require('../middleware/auth');
-const roleAuth = require('../middleware/roleAuth');
-const { upload, handleUploadError } = require('../middleware/upload'); // Middleware untuk upload file
+import roleAuth from '../middleware/roleAuth.js';
+import { upload, handleUploadError } from '../middleware/upload.js'; // Middleware untuk upload file
 
 /**
  * @route   GET /api/users
  * @desc    Dapatkan semua users (dengan paginasi dan filter)
  * @access  Private (Admin only)
  */
-router.get('/', auth, roleAuth('admin'), getAllUser);
+router.get('/', auth, roleAuth('admin'), getAllUsers);
 
 /**
  * @route   GET /api/users/:id
@@ -78,4 +78,4 @@ router.get('/profile/certificates', auth, getUserCertificates);
  */
 router.get('/stats/dashboard', auth, getUserDashboardStats);
 
-export default userRoutes;
+export default router;

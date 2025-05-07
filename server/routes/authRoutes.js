@@ -1,8 +1,8 @@
 import express from 'express';
 const router = express.Router();
 import { changePassword, getCurrentUser, login, logout, refreshToken, register } from '../controllers/authController.js'; 
-const auth = require('../middleware/auth');
-const rateLimit = require('express-rate-limit');
+import auth from '../middleware/auth.js';
+import rateLimit from 'express-rate-limit';
 
 /**
  * Rate limiter untuk endpoint login
@@ -78,4 +78,4 @@ router.get('/me', auth, getCurrentUser);
  */
 router.put('/change-password', auth, changePassword);
 
-export default authRoutes;
+export default router;

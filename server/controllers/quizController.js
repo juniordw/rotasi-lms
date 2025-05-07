@@ -1,5 +1,4 @@
-import { Quiz, Question, Answer, UserAnswer, Enrollment, Lesson, Module, Course, Progress } from '../models/index.js';
-import { Op } from 'sequelize';
+import { Quiz, Question, Answer, UserAnswer, Enrollment, Lesson, Module, Course, Progress, User } from '../models/index.js';
 import { validateQuiz, validateQuestion } from '../utils/validators.js';
 
 /**
@@ -580,224 +579,224 @@ export const submitQuiz = async (req, res) => {
  * @access  Private (Instructor yang membuat course, Admin)
  */
 export const gradeEssay = async (req, res) => {
-    try {
-      const quizId = req.params.id;
-      const { grades } = req.body;
-      
-      if (!grades || !Array.isArray(grades)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Format penilaian tidak valid'
-        });
-      }
-      
-      // Get quiz
-      const quiz = await Quiz.findByPk(quizId, {
-        include: [
-          {
-            model: Lesson,
-            as: 'lesson',
-            include: [
-              {
-                model: Module,
-                as: 'module',
-                include: [
-                  {
-                    model: Course,
-                    as: 'course',
-                    attributes: ['instructor_id']
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      });
-      
-      if (!quiz) {
-        return res.status(404).json({
-          success: false,
-          message: 'Quiz tidak ditemukan'
-        });
-      }
-      
-      // Cek kepemilikan
-      const instructorId = quiz.lesson.module.course.instructor_id;
-      if (instructorId !== req.user.id && req.user.role !== 'admin') {
-        return res.status(403).json({
-          success: false,
-          message: 'Akses ditolak. Anda bukan instructor dari kursus ini'
-        });
-      }
-      
-      // Update penilaian
-      for (const grade of grades) {
-        const { user_answer_id, is_correct, points_earned } = grade;
-        
-        // Validasi
-        if (!user_answer_id || points_earned === undefined) {
-          continue; // Skip invalid grades
-        }
-        
-        // Update user answer
-        await UserAnswer.update(
-          {
-            is_correct,
-            points_earned
-          },
-          {
-            where: { id: user_answer_id }
-          }
-        );
-      }
-      
-      res.json({
-        success: true,
-        message: 'Penilaian berhasil disimpan'
-      });
-    } catch (error) {
-      console.error('Grade essay error:', error);
-      res.status(500).json({
+  try {
+    const quizId = req.params.id;
+    const { grades } = req.body;
+    
+    if (!grades || !Array.isArray(grades)) {
+      return res.status(400).json({
         success: false,
-        message: 'Server error',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        message: 'Format penilaian tidak valid'
       });
     }
-  };
-  
-  /**
-   * @desc    Dapatkan hasil quiz untuk semua user
-   * @route   GET /api/quizzes/:id/results
-   * @access  Private (Instructor yang membuat course, Admin)
-   */
-  export const getQuizResults = async (req, res) => {
-    try {
-      const quizId = req.params.id;
-      
-      // Get quiz
-      const quiz = await Quiz.findByPk(quizId, {
-        include: [
-          {
-            model: Lesson,
-            as: 'lesson',
-            include: [
-              {
-                model: Module,
-                as: 'module',
-                include: [
-                  {
-                    model: Course,
-                    as: 'course',
-                    attributes: ['id', 'instructor_id']
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            model: Question,
-            as: 'questions',
-            attributes: ['id', 'question_text', 'question_type', 'points']
-          }
-        ]
+    
+    // Get quiz
+    const quiz = await Quiz.findByPk(quizId, {
+      include: [
+        {
+          model: Lesson,
+          as: 'lesson',
+          include: [
+            {
+              model: Module,
+              as: 'module',
+              include: [
+                {
+                  model: Course,
+                  as: 'course',
+                  attributes: ['instructor_id']
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+    
+    if (!quiz) {
+      return res.status(404).json({
+        success: false,
+        message: 'Quiz tidak ditemukan'
       });
+    }
+    
+    // Cek kepemilikan
+    const instructorId = quiz.lesson.module.course.instructor_id;
+    if (instructorId !== req.user.id && req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Akses ditolak. Anda bukan instructor dari kursus ini'
+      });
+    }
+    
+    // Update penilaian
+    for (const grade of grades) {
+      const { user_answer_id, is_correct, points_earned } = grade;
       
-      if (!quiz) {
-        return res.status(404).json({
-          success: false,
-          message: 'Quiz tidak ditemukan'
-        });
+      // Validasi
+      if (!user_answer_id || points_earned === undefined) {
+        continue; // Skip invalid grades
       }
       
-      // Cek kepemilikan
-      const instructorId = quiz.lesson.module.course.instructor_id;
-      if (instructorId !== req.user.id && req.user.role !== 'admin') {
-        return res.status(403).json({
-          success: false,
-          message: 'Akses ditolak. Anda bukan instructor dari kursus ini'
-        });
-      }
-      
-      const courseId = quiz.lesson.module.course.id;
-      
-      // Get enrollments dari kursus
-      const enrollments = await Enrollment.findAll({
-        where: { course_id: courseId },
-        include: [
-          {
-            model: User,
-            as: 'user',
-            attributes: ['id', 'full_name', 'email', 'username']
-          }
-        ]
+      // Update user answer
+      await UserAnswer.update(
+        {
+          is_correct,
+          points_earned
+        },
+        {
+          where: { id: user_answer_id }
+        }
+      );
+    }
+    
+    res.json({
+      success: true,
+      message: 'Penilaian berhasil disimpan'
+    });
+  } catch (error) {
+    console.error('Grade essay error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+/**
+ * @desc    Dapatkan hasil quiz untuk semua user
+ * @route   GET /api/quizzes/:id/results
+ * @access  Private (Instructor yang membuat course, Admin)
+ */
+export const getQuizResults = async (req, res) => {
+  try {
+    const quizId = req.params.id;
+    
+    // Get quiz
+    const quiz = await Quiz.findByPk(quizId, {
+      include: [
+        {
+          model: Lesson,
+          as: 'lesson',
+          include: [
+            {
+              model: Module,
+              as: 'module',
+              include: [
+                {
+                  model: Course,
+                  as: 'course',
+                  attributes: ['id', 'instructor_id']
+                }
+              ]
+            }
+          ]
+        },
+        {
+          model: Question,
+          as: 'questions',
+          attributes: ['id', 'question_text', 'question_type', 'points']
+        }
+      ]
+    });
+    
+    if (!quiz) {
+      return res.status(404).json({
+        success: false,
+        message: 'Quiz tidak ditemukan'
+      });
+    }
+    
+    // Cek kepemilikan
+    const instructorId = quiz.lesson.module.course.instructor_id;
+    if (instructorId !== req.user.id && req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Akses ditolak. Anda bukan instructor dari kursus ini'
+      });
+    }
+    
+    const courseId = quiz.lesson.module.course.id;
+    
+    // Get enrollments dari kursus
+    const enrollments = await Enrollment.findAll({
+      where: { course_id: courseId },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'full_name', 'email', 'username']
+        }
+      ]
+    });
+    
+    // Calculate total possible points
+    const totalPoints = quiz.questions.reduce((sum, q) => sum + q.points, 0);
+    
+    // Get results for each enrollment
+    const results = [];
+    
+    for (const enrollment of enrollments) {
+      // Get user answers
+      const userAnswers = await UserAnswer.findAll({
+        where: {
+          enrollment_id: enrollment.id,
+          question_id: quiz.questions.map(q => q.id)
+        }
       });
       
-      // Calculate total possible points
-      const totalPoints = quiz.questions.reduce((sum, q) => sum + q.points, 0);
-      
-      // Get results for each enrollment
-      const results = [];
-      
-      for (const enrollment of enrollments) {
-        // Get user answers
-        const userAnswers = await UserAnswer.findAll({
-          where: {
-            enrollment_id: enrollment.id,
-            question_id: quiz.questions.map(q => q.id)
-          }
-        });
-        
-        if (userAnswers.length === 0) {
-          // User belum mengerjakan quiz
-          results.push({
-            user: enrollment.user,
-            has_taken_quiz: false
-          });
-          continue;
-        }
-        
-        // Calculate earned points
-        let earnedPoints = 0;
-        let needsGrading = false;
-        
-        for (const userAnswer of userAnswers) {
-          if (userAnswer.is_correct === true) {
-            earnedPoints += userAnswer.points_earned;
-          } else if (userAnswer.is_correct === null) {
-            needsGrading = true;
-          }
-        }
-        
-        // Calculate score
-        const score = totalPoints > 0 ? (earnedPoints / totalPoints) * 100 : 0;
-        const isPassed = score >= quiz.passing_score;
-        
+      if (userAnswers.length === 0) {
+        // User belum mengerjakan quiz
         results.push({
           user: enrollment.user,
-          has_taken_quiz: true,
-          score,
-          is_passed: isPassed,
-          needs_grading: needsGrading,
-          total_points: totalPoints,
-          earned_points: earnedPoints,
-          submission_date: userAnswers[0].createdAt
+          has_taken_quiz: false
         });
+        continue;
       }
       
-      res.json({
-        success: true,
-        data: {
-          quiz_title: quiz.title,
-          passing_score: quiz.passing_score,
-          results
+      // Calculate earned points
+      let earnedPoints = 0;
+      let needsGrading = false;
+      
+      for (const userAnswer of userAnswers) {
+        if (userAnswer.is_correct === true) {
+          earnedPoints += userAnswer.points_earned;
+        } else if (userAnswer.is_correct === null) {
+          needsGrading = true;
         }
-      });
-    } catch (error) {
-      console.error('Get quiz results error:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Server error',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      }
+      
+      // Calculate score
+      const score = totalPoints > 0 ? (earnedPoints / totalPoints) * 100 : 0;
+      const isPassed = score >= quiz.passing_score;
+      
+      results.push({
+        user: enrollment.user,
+        has_taken_quiz: true,
+        score,
+        is_passed: isPassed,
+        needs_grading: needsGrading,
+        total_points: totalPoints,
+        earned_points: earnedPoints,
+        submission_date: userAnswers[0].createdAt
       });
     }
-  };
+    
+    res.json({
+      success: true,
+      data: {
+        quiz_title: quiz.title,
+        passing_score: quiz.passing_score,
+        results
+      }
+    });
+  } catch (error) {
+    console.error('Get quiz results error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};

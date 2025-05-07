@@ -1,5 +1,4 @@
 import { Module, Lesson, Quiz, Course, Enrollment, Progress } from '../models/index.js';
-import { Op } from 'sequelize';
 
 /**
  * @desc    Dapatkan detail modul
@@ -94,6 +93,33 @@ export const updateModule = async (req, res) => {
       });
     }
     
+    // Check if module exists and get course info for authorization
+    const existingModule = await Module.findByPk(moduleId, {
+      include: [
+        {
+          model: Course,
+          as: 'course',
+          attributes: ['id', 'instructor_id']
+        }
+      ]
+    });
+    
+    if (!existingModule) {
+      return res.status(404).json({
+        success: false,
+        message: 'Modul tidak ditemukan'
+      });
+    }
+    
+    // Check authorization
+    const userId = req.user.id;
+    if (existingModule.course.instructor_id !== userId && req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Akses ditolak. Anda tidak memiliki izin untuk mengubah modul ini'
+      });
+    }
+    
     // Update module
     const [updated] = await Module.update(
       {
@@ -139,6 +165,33 @@ export const updateModule = async (req, res) => {
 export const deleteModule = async (req, res) => {
   try {
     const moduleId = req.params.id;
+    
+    // Check if module exists and get course info for authorization
+    const existingModule = await Module.findByPk(moduleId, {
+      include: [
+        {
+          model: Course,
+          as: 'course',
+          attributes: ['id', 'instructor_id']
+        }
+      ]
+    });
+    
+    if (!existingModule) {
+      return res.status(404).json({
+        success: false,
+        message: 'Modul tidak ditemukan'
+      });
+    }
+    
+    // Check authorization
+    const userId = req.user.id;
+    if (existingModule.course.instructor_id !== userId && req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Akses ditolak. Anda tidak memiliki izin untuk menghapus modul ini'
+      });
+    }
     
     // Cek apakah ada lesson di modul ini
     const lessonCount = await Lesson.count({
@@ -186,6 +239,33 @@ export const deleteModule = async (req, res) => {
 export const addLesson = async (req, res) => {
   try {
     const moduleId = req.params.id;
+    
+    // Check if module exists and get course info for authorization
+    const existingModule = await Module.findByPk(moduleId, {
+      include: [
+        {
+          model: Course,
+          as: 'course',
+          attributes: ['id', 'instructor_id']
+        }
+      ]
+    });
+    
+    if (!existingModule) {
+      return res.status(404).json({
+        success: false,
+        message: 'Modul tidak ditemukan'
+      });
+    }
+    
+    // Check authorization
+    const userId = req.user.id;
+    if (existingModule.course.instructor_id !== userId && req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Akses ditolak. Anda tidak memiliki izin untuk menambah materi ke modul ini'
+      });
+    }
     
     // Validasi input
     const { 
@@ -299,13 +379,30 @@ export const reorderModule = async (req, res) => {
       });
     }
     
-    // Get module
-    const module = await Module.findByPk(moduleId);
+    // Get module with course info for authorization
+    const module = await Module.findByPk(moduleId, {
+      include: [
+        {
+          model: Course,
+          as: 'course',
+          attributes: ['id', 'instructor_id']
+        }
+      ]
+    });
     
     if (!module) {
       return res.status(404).json({
         success: false,
         message: 'Modul tidak ditemukan'
+      });
+    }
+    
+    // Check authorization
+    const userId = req.user.id;
+    if (module.course.instructor_id !== userId && req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Akses ditolak. Anda tidak memiliki izin untuk mengubah urutan modul ini'
       });
     }
     
@@ -323,6 +420,14 @@ export const reorderModule = async (req, res) => {
     }
     
     const oldOrder = module.order_number;
+    
+    // Don't reorder if the position is the same
+    if (oldOrder === new_order) {
+      return res.json({
+        success: true,
+        message: 'Urutan modul tidak berubah'
+      });
+    }
     
     // Reorder modules
     if (oldOrder < new_order) {
@@ -365,66 +470,41 @@ export const reorderModule = async (req, res) => {
  * @access  Private (Enrolled User, Instructor, Admin)
  */
 export const getModuleLessons = async (req, res) => {
-    try {
-      const moduleId = req.params.id;
-      
-      // Get module
-      const module = await Module.findByPk(moduleId, {
-        include: [
-          {
-            model: Course,
-            as: 'course',
-            attributes: ['id', 'title', 'instructor_id', 'status']
-          }
-        ]
+  try {
+    const moduleId = req.params.id;
+    
+    // Get module
+    const module = await Module.findByPk(moduleId, {
+      include: [
+        {
+          model: Course,
+          as: 'course',
+          attributes: ['id', 'title', 'instructor_id', 'status']
+        }
+      ]
+    });
+    
+    if (!module) {
+      return res.status(404).json({
+        success: false,
+        message: 'Modul tidak ditemukan'
       });
-      
-      if (!module) {
-        return res.status(404).json({
+    }
+    
+    const userId = req.user.id;
+    const course = module.course;
+    
+    // Cek akses: jika kursus draft, hanya instructor atau admin yang bisa melihat
+    if (course.status === 'draft') {
+      if (course.instructor_id !== userId && req.user.role !== 'admin') {
+        return res.status(403).json({
           success: false,
-          message: 'Modul tidak ditemukan'
+          message: 'Akses ditolak. Kursus belum dipublish'
         });
       }
-      
-      const userId = req.user.id;
-      const course = module.course;
-      
-      // Cek akses: jika kursus draft, hanya instructor atau admin yang bisa melihat
-      if (course.status === 'draft') {
-        if (course.instructor_id !== userId && req.user.role !== 'admin') {
-          return res.status(403).json({
-            success: false,
-            message: 'Akses ditolak. Kursus belum dipublish'
-          });
-        }
-      } else {
-        // Jika kursus published, cek apakah user sudah enroll (kecuali instructor atau admin)
-        if (course.instructor_id !== userId && req.user.role !== 'admin') {
-          const enrollment = await Enrollment.findOne({
-            where: {
-              user_id: userId,
-              course_id: course.id
-            }
-          });
-          
-          if (!enrollment) {
-            return res.status(403).json({
-              success: false,
-              message: 'Akses ditolak. Anda belum terdaftar di kursus ini'
-            });
-          }
-        }
-      }
-      
-      // Get lessons
-      const lessons = await Lesson.findAll({
-        where: { module_id: moduleId },
-        order: [['order_number', 'ASC']]
-      });
-      
-      // Jika user adalah student yang enroll, tambahkan data progress
-      if (req.user.role === 'student') {
-        // Dapatkan enrollment
+    } else {
+      // Jika kursus published, cek apakah user sudah enroll (kecuali instructor atau admin)
+      if (course.instructor_id !== userId && req.user.role !== 'admin') {
         const enrollment = await Enrollment.findOne({
           where: {
             user_id: userId,
@@ -432,52 +512,77 @@ export const getModuleLessons = async (req, res) => {
           }
         });
         
-        if (enrollment) {
-          // Dapatkan semua progress untuk enrollment ini
-          const progresses = await Progress.findAll({
-            where: { 
-              enrollment_id: enrollment.id,
-              lesson_id: lessons.map(lesson => lesson.id)
-            }
+        if (!enrollment) {
+          return res.status(403).json({
+            success: false,
+            message: 'Akses ditolak. Anda belum terdaftar di kursus ini'
           });
-          
-          // Map progress ke lesson
-          const progressMap = new Map();
-          for (const progress of progresses) {
-            progressMap.set(progress.lesson_id, progress);
+        }
+      }
+    }
+    
+    // Get lessons
+    const lessons = await Lesson.findAll({
+      where: { module_id: moduleId },
+      order: [['order_number', 'ASC']]
+    });
+    
+    // Jika user adalah student yang enroll, tambahkan data progress
+    if (req.user.role === 'student') {
+      // Dapatkan enrollment
+      const enrollment = await Enrollment.findOne({
+        where: {
+          user_id: userId,
+          course_id: course.id
+        }
+      });
+      
+      if (enrollment) {
+        // Dapatkan semua progress untuk enrollment ini
+        const progresses = await Progress.findAll({
+          where: { 
+            enrollment_id: enrollment.id,
+            lesson_id: lessons.map(lesson => lesson.id)
           }
+        });
+        
+        // Map progress ke lesson
+        const progressMap = new Map();
+        for (const progress of progresses) {
+          progressMap.set(progress.lesson_id, progress);
+        }
+        
+        // Tambahkan data progress ke setiap lesson
+        for (const lesson of lessons) {
+          const progress = progressMap.get(lesson.id);
           
-          // Tambahkan data progress ke setiap lesson
-          for (const lesson of lessons) {
-            const progress = progressMap.get(lesson.id);
-            
-            if (progress) {
-              lesson.dataValues.progress = {
-                status: progress.status,
-                last_accessed: progress.last_accessed,
-                time_spent_minutes: progress.time_spent_minutes
-              };
-            } else {
-              lesson.dataValues.progress = {
-                status: 'not_started',
-                last_accessed: null,
-                time_spent_minutes: 0
-              };
-            }
+          if (progress) {
+            lesson.dataValues.progress = {
+              status: progress.status,
+              last_accessed: progress.last_accessed,
+              time_spent_minutes: progress.time_spent_minutes
+            };
+          } else {
+            lesson.dataValues.progress = {
+              status: 'not_started',
+              last_accessed: null,
+              time_spent_minutes: 0
+            };
           }
         }
       }
-      
-      res.json({
-        success: true,
-        data: lessons
-      });
-    } catch (error) {
-      console.error('Get module lessons error:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Server error',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
-      });
     }
-  };
+    
+    res.json({
+      success: true,
+      data: lessons
+    });
+  } catch (error) {
+    console.error('Get module lessons error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};

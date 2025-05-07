@@ -3,19 +3,20 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { Sequelize } from 'sequelize';
 import process from 'process';
+import config from '../config/config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
-const config = await import('../config/config.json', { assert: { type: 'json' } }).then(module => module.default[env]);
+const dbConfig = config[env];
 const db = {};
 
 let sequelize;
-if (config.use_env_variable) {
-  sequelize = new Sequelize(process.env[config.use_env_variable], config);
+if (dbConfig.use_env_variable) {
+  sequelize = new Sequelize(process.env[dbConfig.use_env_variable], dbConfig);
 } else {
-  sequelize = new Sequelize(config.database, config.username, config.password, config);
+  sequelize = new Sequelize(dbConfig.database, dbConfig.username, dbConfig.password, dbConfig);
 }
 
 // Use dynamic imports for all model files
@@ -32,7 +33,10 @@ const modelFiles = fs.readdirSync(__dirname)
 // Load all models asynchronously
 for (const file of modelFiles) {
   if (file !== 'index.js') {
-    const modelModule = await import(path.join(__dirname, file));
+    // Convert the path to a file URL for ESM compatibility
+    const modelPath = path.join(__dirname, file);
+    const modelURL = new URL(`file://${modelPath}`).href;
+    const modelModule = await import(modelURL);
     const model = modelModule.default(sequelize, Sequelize.DataTypes);
     db[model.name] = model;
   }

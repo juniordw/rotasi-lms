@@ -10,9 +10,6 @@ import {
   RefreshToken,
 } from "../models/index.js";
 import { Op } from "sequelize";
-import bcrypt from "bcryptjs";
-import fs from "fs";
-import path from "path";
 import { validateUserUpdate } from "../utils/validators.js";
 import db from "../models/index.js";
 const { sequelize } = db;

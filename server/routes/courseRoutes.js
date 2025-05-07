@@ -1,10 +1,10 @@
 import express from 'express';
 const router = express.Router();
 import * as courseController from '../controllers/courseController.js';
-const auth = require('../middleware/auth');
-const roleAuth = require('../middleware/roleAuth');
-const ownershipCheck = require('../middleware/ownershipCheck');
-const { Course } = require('../models');
+import auth from '../middleware/auth.js';
+import roleAuth from '../middleware/roleAuth.js';
+import ownershipCheck from '../middleware/ownershipCheck.js';
+import { Course } from '../models/index.js';
 
 /**
  * @route   GET /api/courses
@@ -124,4 +124,4 @@ router.get('/:id/students',
  */
 router.post('/:id/certificate', auth, courseController.generateCertificate);
 
-export default courseRoutes;
+export default router;
