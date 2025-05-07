@@ -1,5 +1,6 @@
 'use strict';
 import { Model } from 'sequelize';
+
 export default (sequelize, DataTypes) => {
   class Enrollment extends Model {
     /**
@@ -8,9 +9,26 @@ export default (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      // Define association with User model
+      Enrollment.belongsTo(models.User, {
+        foreignKey: 'user_id',
+        as: 'user'
+      });
+      
+      // Define association with Course model with proper alias
+      Enrollment.belongsTo(models.Course, {
+        foreignKey: 'course_id',
+        as: 'course'
+      });
+      
+      // Define association with Progress model
+      Enrollment.hasMany(models.Progress, {
+        foreignKey: 'enrollment_id',
+        as: 'progresses'
+      });
     }
   }
+  
   Enrollment.init({
     user_id: DataTypes.INTEGER,
     course_id: DataTypes.INTEGER,
@@ -22,5 +40,6 @@ export default (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Enrollment',
   });
+  
   return Enrollment;
 };

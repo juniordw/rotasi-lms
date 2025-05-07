@@ -202,16 +202,17 @@ export const getCurrentUser = async (req, res) => {
       });
     }
 
-    // Tambahkan data progress learning, enrolled courses, dan notifikasi
-    const enrolledCourses = await Enrollment.findAll({
-      where: { user_id: req.user.id },
-      include: [
-        {
-          model: Course,
-          attributes: ['id', 'title', 'description', 'thumbnail_url']
-        }
-      ]
-    });
+// In authController.js, in the getCurrentUser function
+const enrolledCourses = await Enrollment.findAll({
+  where: { user_id: req.user.id },
+  include: [
+    {
+      model: Course,
+      as: 'course',  // Make sure this alias is specified
+      attributes: ['id', 'title', 'description', 'thumbnail_url']
+    }
+  ]
+});
 
     const notifications = await Notification.findAll({
       where: { 

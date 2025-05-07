@@ -650,138 +650,159 @@ export const getUserDashboardStats = async (req, res) => {
     }
     // Stats untuk instructor
     else if (req.user.role === "instructor") {
-      // Total kursus yang dibuat
-      const totalCourses = await Course.count({
-        where: { instructor_id: userId },
-      });
+      try {
+        // Total kursus yang dibuat
+        const totalCourses = await Course.count({
+          where: { instructor_id: userId },
+        });
 
-      // Kursus yang dipublish
-      const publishedCourses = await Course.count({
-        where: {
-          instructor_id: userId,
-          status: "published",
-        },
-      });
-
-      // Total student yang enroll di kursus
-      const totalStudents = await Enrollment.count({
-        include: [
-          {
-            model: Course,
-            as: "course",
-            where: { instructor_id: userId },
-            required: true,
+        // Kursus yang dipublish
+        const publishedCourses = await Course.count({
+          where: {
+            instructor_id: userId,
+            status: "published",
           },
-        ],
-      });
+        });
 
-      // Kursus paling populer
-      const popularCourses = await Course.findAll({
-        where: { instructor_id: userId },
-        attributes: [
-          "id",
-          "title",
-          "thumbnail_url",
-          [
-            sequelize.fn("COUNT", sequelize.col("enrollments.id")),
-            "enrollmentCount",
+        // Total student yang enroll di kursus
+        const totalStudents = await Enrollment.count({
+          include: [
+            {
+              model: Course,
+              as: "course",
+              where: { instructor_id: userId },
+              required: true,
+            },
           ],
-        ],
-        include: [
-          {
-            model: Enrollment,
-            as: "enrollments",
-            attributes: [],
-          },
-        ],
-        group: ["Course.id"],
-        order: [[sequelize.literal("enrollmentCount"), "DESC"]],
-        limit: 5,
-      });
+        });
 
-      res.json({
-        success: true,
-        data: {
-          courseStats: {
-            totalCourses,
-            publishedCourses,
-            draftCourses: totalCourses - publishedCourses,
-            publishRate:
-              totalCourses > 0
-                ? Math.round((publishedCourses / totalCourses) * 100)
-                : 0,
+        // Alternative approach: get courses first, then count enrollments separately
+        const courses = await Course.findAll({
+          where: { instructor_id: userId },
+          attributes: ["id", "title", "thumbnail_url"],
+        });
+        
+        // Create array for popular courses with counts
+        const popularCourses = [];
+        
+        // For each course, count enrollments and add to array
+        for (const course of courses) {
+          const enrollmentCount = await Enrollment.count({
+            where: { course_id: course.id }
+          });
+          
+          popularCourses.push({
+            id: course.id,
+            title: course.title,
+            thumbnail_url: course.thumbnail_url,
+            enrollmentCount: enrollmentCount
+          });
+        }
+        
+        // Sort by enrollment count descending and limit to top 5
+        popularCourses.sort((a, b) => b.enrollmentCount - a.enrollmentCount);
+        const top5PopularCourses = popularCourses.slice(0, 5);
+
+        res.json({
+          success: true,
+          data: {
+            courseStats: {
+              totalCourses,
+              publishedCourses,
+              draftCourses: totalCourses - publishedCourses,
+              publishRate:
+                totalCourses > 0
+                  ? Math.round((publishedCourses / totalCourses) * 100)
+                  : 0,
+            },
+            studentStats: {
+              totalStudents,
+            },
+            popularCourses: top5PopularCourses,
           },
-          studentStats: {
-            totalStudents,
-          },
-          popularCourses,
-        },
-      });
+        });
+      } catch (error) {
+        console.error("Instructor stats error:", error);
+        res.status(500).json({
+          success: false,
+          message: "Server error",
+          error: process.env.NODE_ENV === "development" ? error.message : undefined,
+        });
+      }
     }
     // Stats untuk admin
     else if (req.user.role === "admin") {
-      // Total user
-      const totalUsers = await User.count();
+      try {
+        // Total user
+        const totalUsers = await User.count();
 
-      // Total user per role
-      const roleCount = await User.findAll({
-        attributes: [
-          "role",
-          [sequelize.fn("COUNT", sequelize.col("id")), "count"],
-        ],
-        group: ["role"],
-      });
+        // Get role counts directly with individual queries to avoid GROUP BY
+        const adminCount = await User.count({ where: { role: 'admin' } });
+        const instructorCount = await User.count({ where: { role: 'instructor' } });
+        const studentCount = await User.count({ where: { role: 'student' } });
+        
+        // Put role counts into expected format
+        const roleCount = {
+          admin: adminCount,
+          instructor: instructorCount,
+          student: studentCount
+        };
 
-      // Total kursus
-      const totalCourses = await Course.count();
+        // Total kursus
+        const totalCourses = await Course.count();
 
-      // Kursus per status
-      const courseStatusCount = await Course.findAll({
-        attributes: [
-          "status",
-          [sequelize.fn("COUNT", sequelize.col("id")), "count"],
-        ],
-        group: ["status"],
-      });
+        // Get course status counts directly
+        const draftCount = await Course.count({ where: { status: 'draft' } });
+        const publishedCount = await Course.count({ where: { status: 'published' } });
+        const archivedCount = await Course.count({ where: { status: 'archived' } });
+        
+        // Put status counts into expected format
+        const statusCount = {
+          draft: draftCount,
+          published: publishedCount,
+          archived: archivedCount
+        };
 
-      // Total enrollment
-      const totalEnrollments = await Enrollment.count();
+        // Total enrollment
+        const totalEnrollments = await Enrollment.count();
 
-      // Enrollment per status
-      const enrollmentStatusCount = await Enrollment.findAll({
-        attributes: [
-          "completion_status",
-          [sequelize.fn("COUNT", sequelize.col("id")), "count"],
-        ],
-        group: ["completion_status"],
-      });
+        // Get enrollment status counts directly
+        const notStartedCount = await Enrollment.count({ where: { completion_status: 'not_started' } });
+        const inProgressCount = await Enrollment.count({ where: { completion_status: 'in_progress' } });
+        const completedCount = await Enrollment.count({ where: { completion_status: 'completed' } });
+        
+        // Put enrollment status counts into expected format
+        const enrollmentStatusCount = {
+          not_started: notStartedCount,
+          in_progress: inProgressCount,
+          completed: completedCount
+        };
 
-      res.json({
-        success: true,
-        data: {
-          userStats: {
-            totalUsers,
-            roleCount: roleCount.reduce((acc, item) => {
-              acc[item.role] = parseInt(item.get("count"));
-              return acc;
-            }, {}),
+        res.json({
+          success: true,
+          data: {
+            userStats: {
+              totalUsers,
+              roleCount
+            },
+            courseStats: {
+              totalCourses,
+              statusCount
+            },
+            enrollmentStats: {
+              totalEnrollments,
+              statusCount: enrollmentStatusCount
+            },
           },
-          courseStats: {
-            totalCourses,
-            statusCount: courseStatusCount.reduce((acc, item) => {
-              acc[item.status] = parseInt(item.get("count"));
-              return acc;
-            }, {}),
-          },
-          enrollmentStats: {
-            totalEnrollments,
-            statusCount: enrollmentStatusCount.reduce((acc, item) => {
-              acc[item.completion_status] = parseInt(item.get("count"));
-              return acc;
-            }, {}),
-          },
-        },
-      });
+        });
+      } catch (error) {
+        console.error("Admin stats error:", error);
+        res.status(500).json({
+          success: false,
+          message: "Server error",
+          error: process.env.NODE_ENV === "development" ? error.message : undefined,
+        });
+      }
     }
   } catch (error) {
     console.error("Get user dashboard stats error:", error);

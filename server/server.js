@@ -13,7 +13,7 @@ const startServer = async () => {
   try {
     // Sync database (in development only)
     if (process.env.NODE_ENV === 'development') {
-      await sequelize.sync({ alter: true });
+      await sequelize.sync({ force: false, alter: false });
       console.log('Database synced');
     }
     
