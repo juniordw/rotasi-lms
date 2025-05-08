@@ -49,7 +49,7 @@ export default (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Module',
-    tableName: 'modules',
+    tableName: 'Modules',
     timestamps: false
   });
   

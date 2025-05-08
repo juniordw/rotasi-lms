@@ -81,7 +81,7 @@ export default (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Lesson',
-    tableName: 'lessons',
+    tableName: 'Lessons',
     timestamps: false
   });
   

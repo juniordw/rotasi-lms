@@ -144,7 +144,7 @@ export default (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Course',
-    tableName: 'courses',
+    tableName: 'Courses',
     timestamps: false,
     // Tambahkan hooks untuk menangani error constraint
     hooks: {

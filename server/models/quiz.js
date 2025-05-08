@@ -8,14 +8,36 @@ export default (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      // Asosiasi dengan model Lesson
+      Quiz.belongsTo(models.Lesson, {
+        foreignKey: 'lesson_id',
+        as: 'lesson',
+      });
+
+      // Asosiasi dengan model Question (one-to-many)
+      Quiz.hasMany(models.Question, {
+        foreignKey: 'quiz_id',
+        as: 'questions',
+      });
     }
   }
   Quiz.init({
-    lesson_id: DataTypes.INTEGER,
-    title: DataTypes.STRING,
-    passing_score: DataTypes.FLOAT,
-    time_limit_minutes: DataTypes.INTEGER
+    lesson_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    passing_score: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+    },
+    time_limit_minutes: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    }
   }, {
     sequelize,
     modelName: 'Quiz',

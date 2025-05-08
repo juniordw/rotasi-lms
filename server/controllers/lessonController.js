@@ -1,5 +1,6 @@
-import { Lesson, Module, Course, Enrollment, Progress, Quiz, Question } from '../models/index.js';
+import { Lesson, Module, Course, Enrollment, Progress, Quiz, Question, Notification } from '../models/index.js';
 import { validateLesson } from '../utils/validators.js';
+import { Op } from 'sequelize';
 
 /**
  * @desc    Dapatkan detail materi pembelajaran
@@ -69,10 +70,11 @@ export const getLessonById = async (req, res) => {
         
         // Jika user adalah student, update progress
         if (req.user.role === 'student') {
-          // Cek apakah sudah ada progress
+          // Cek apakah sudah ada progress berdasarkan user_id, course_id, dan lesson_id
           let progress = await Progress.findOne({
             where: {
-              enrollment_id: enrollment.id,
+              user_id: userId,
+              course_id: course.id,
               lesson_id: lessonId
             }
           });
@@ -86,7 +88,8 @@ export const getLessonById = async (req, res) => {
           } else {
             // Buat progress baru
             progress = await Progress.create({
-              enrollment_id: enrollment.id,
+              user_id: userId,
+              course_id: course.id,
               lesson_id: lessonId,
               status: 'in_progress',
               last_accessed: new Date(),
@@ -440,10 +443,14 @@ export const completeLesson = async (req, res) => {
       });
     }
     
-    // Update progress
+    // Karena enrollment_id adalah INTEGER, kita gunakan user_id sebagai enrollment_id
+    // dan kita akan memastikan course_id benar di level aplikasi
+    const enrollmentId = userId; // Menggunakan user_id sebagai pengganti enrollment_id
+    
+    // Cek apakah progress sudah ada
     let progress = await Progress.findOne({
       where: {
-        enrollment_id: enrollment.id,
+        enrollment_id: enrollmentId,
         lesson_id: lessonId
       }
     });
@@ -458,7 +465,7 @@ export const completeLesson = async (req, res) => {
     } else {
       // Create new progress
       progress = await Progress.create({
-        enrollment_id: enrollment.id,
+        enrollment_id: enrollmentId,
         lesson_id: lessonId,
         status: 'completed',
         last_accessed: new Date(),
@@ -483,14 +490,16 @@ export const completeLesson = async (req, res) => {
     // Get completed lessons
     const completedLessons = await Progress.findAll({
       where: {
-        enrollment_id: enrollment.id,
+        enrollment_id: enrollmentId,
         status: 'completed',
-        lesson_id: requiredLessons.map(l => l.id)
+        lesson_id: {
+          [Op.in]: requiredLessons.map(l => l.id)
+        }
       }
     });
     
     // Jika semua required lesson sudah selesai, update status enrollment
-    if (requiredLessons.length === completedLessons.length) {
+    if (requiredLessons.length > 0 && requiredLessons.length === completedLessons.length) {
       await enrollment.update({
         completion_status: 'completed',
         completion_date: new Date()
@@ -535,46 +544,46 @@ export const completeLesson = async (req, res) => {
  * @access  Private (Instructor yang membuat course, Admin)
  */
 export const uploadContent = async (req, res) => {
-    try {
-      const lessonId = req.params.id;
-      
-      // Pastikan file terupload
-      if (!req.file) {
-        return res.status(400).json({
-          success: false,
-          message: 'Tidak ada file yang diupload'
-        });
-      }
-      
-      // Dapatkan file path
-      const contentUrl = `/uploads/lessons/${req.file.filename}`;
-      
-      // Update content_url lesson
-      const [updated] = await Lesson.update(
-        { content_url: contentUrl },
-        { where: { id: lessonId } }
-      );
-      
-      if (!updated) {
-        return res.status(404).json({
-          success: false,
-          message: 'Materi pembelajaran tidak ditemukan'
-        });
-      }
-      
-      res.json({
-        success: true,
-        message: 'Konten berhasil diupload',
-        data: {
-          content_url: contentUrl
-        }
-      });
-    } catch (error) {
-      console.error('Upload lesson content error:', error);
-      res.status(500).json({
+  try {
+    const lessonId = req.params.id;
+    
+    // Pastikan file terupload
+    if (!req.file) {
+      return res.status(400).json({
         success: false,
-        message: 'Server error',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        message: 'Tidak ada file yang diupload'
       });
     }
-  };
+    
+    // Dapatkan file path
+    const contentUrl = `/uploads/lessons/${req.file.filename}`;
+    
+    // Update content_url lesson
+    const [updated] = await Lesson.update(
+      { content_url: contentUrl },
+      { where: { id: lessonId } }
+    );
+    
+    if (!updated) {
+      return res.status(404).json({
+        success: false,
+        message: 'Materi pembelajaran tidak ditemukan'
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: 'Konten berhasil diupload',
+      data: {
+        content_url: contentUrl
+      }
+    });
+  } catch (error) {
+    console.error('Upload lesson content error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};

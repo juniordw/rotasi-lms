@@ -1019,12 +1019,16 @@ export const publishCourse = async (req, res) => {
         });
         
         // Get completed lessons
-        const completedLessons = await Progress.count({
-          where: {
-            enrollment_id: enrollment.id,
-            status: 'completed'
-          }
-        });
+        let completedLessons = 0;
+        if (enrollment && enrollment.id !== undefined && enrollment.id !== null) {
+          // Tambahkan pengecekan untuk memastikan enrollment.id valid
+          completedLessons = await Progress.count({
+            where: {
+              enrollment_id: enrollment.id,
+              status: 'completed'
+            }
+          });
+        }
         
         enrollment.dataValues.progress = {
           totalLessons,

@@ -1,5 +1,6 @@
 import { Quiz, Question, Answer, UserAnswer, Enrollment, Lesson, Module, Course, Progress, User } from '../models/index.js';
 import { validateQuiz, validateQuestion } from '../utils/validators.js';
+import { Sequelize } from 'sequelize';
 
 /**
  * @desc    Dapatkan detail quiz
@@ -463,11 +464,20 @@ export const submitQuiz = async (req, res) => {
       });
     }
     
+    // Tambahkan log untuk memeriksa struktur enrollment
+    console.log('Enrollment found:', JSON.stringify(enrollment, null, 2));
+    
+    // Gunakan ID pengganti untuk enrollment_id karena enrollment tidak memiliki id
+    // Opsi 1: Gunakan userId sebagai nilai enrollment_id
+    const enrollmentId = userId;
+    
     // Cek apakah user sudah mengerjakan quiz ini
     const existingAnswers = await UserAnswer.findAll({
       where: {
-        enrollment_id: enrollment.id,
-        question_id: quiz.questions.map(q => q.id)
+        enrollment_id: enrollmentId,
+        question_id: {
+          [Sequelize.Op.in]: quiz.questions.map(q => q.id)
+        }
       }
     });
     
@@ -521,9 +531,9 @@ export const submitQuiz = async (req, res) => {
         }
       }
       
-      // Simpan jawaban user
+      // Simpan jawaban user dengan enrollment_id
       const userAnswer = await UserAnswer.create({
-        enrollment_id: enrollment.id,
+        enrollment_id: enrollmentId,
         question_id: questionId,
         answer_id: answer.answer_id,
         text_answer: answer.text_answer,
@@ -546,7 +556,7 @@ export const submitQuiz = async (req, res) => {
       },
       {
         where: {
-          enrollment_id: enrollment.id,
+          enrollment_id: enrollmentId,
           lesson_id: quiz.lesson_id
         }
       }
@@ -738,10 +748,13 @@ export const getQuizResults = async (req, res) => {
     const results = [];
     
     for (const enrollment of enrollments) {
+      // PERBAIKAN: Menggunakan user_id sebagai enrollment_id
+      const enrollmentId = enrollment.user_id;
+      
       // Get user answers
       const userAnswers = await UserAnswer.findAll({
         where: {
-          enrollment_id: enrollment.id,
+          enrollment_id: enrollmentId,
           question_id: quiz.questions.map(q => q.id)
         }
       });

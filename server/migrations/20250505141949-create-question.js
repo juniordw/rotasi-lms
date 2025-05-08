@@ -21,6 +21,10 @@ export default {
       points: {
         type: Sequelize.INTEGER
       },
+      order_number: { // <-- Tambahkan ini
+        type: Sequelize.INTEGER,
+        allowNull: true
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
@@ -31,6 +35,7 @@ export default {
       }
     });
   },
+
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('Questions');
   }

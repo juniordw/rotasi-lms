@@ -2,6 +2,12 @@ import { Certificate, User, Course, Enrollment, Notification } from '../models/i
 import path from 'path';
 import fs from 'fs';
 import PDFDocument from 'pdfkit';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
 
 /**
  * @desc    Dapatkan semua sertifikat user
@@ -268,17 +274,17 @@ export const generateCertificate = async (req, res) => {
       }
       
       // Cek apakah file sertifikat ada
-      const certificatePath = path.join(__dirname, '..', 'public', certificate.certificate_url);
+      let certificatePath = path.join(__dirname, '..', 'public', certificate.certificate_url);
       
       if (!fs.existsSync(certificatePath)) {
         // Jika file tidak ada, generate ulang
         const newCertificateUrl = await generateCertificatePdf(certificate.user, certificate.course);
-        
+      
         // Update URL sertifikat
         await certificate.update({
           certificate_url: newCertificateUrl
         });
-        
+      
         // Update certificatePath
         certificatePath = path.join(__dirname, '..', 'public', newCertificateUrl);
       }

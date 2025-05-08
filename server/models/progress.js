@@ -9,6 +9,15 @@ export default (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Progress.belongsTo(models.Enrollment, {
+        foreignKey: 'enrollment_id',
+        as: 'enrollment'
+      });
+      
+      Progress.belongsTo(models.Lesson, {
+        foreignKey: 'lesson_id',
+        as: 'lesson'
+      });
     }
   }
   Progress.init({

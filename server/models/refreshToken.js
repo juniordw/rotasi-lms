@@ -32,7 +32,7 @@ export default (sequelize, DataTypes) => {
       defaultValue: DataTypes.NOW
     }
   }, {
-    tableName: 'refresh_tokens',
+    tableName: 'RefreshToken',
     timestamps: false,
     indexes: [
       // Keep the unique index here

@@ -102,7 +102,7 @@ export default (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'User',
-    tableName: 'users',
+    tableName: 'Users',
     timestamps: false
   });
   
