@@ -1,81 +1,90 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import Image from 'next/image';
-import Button from '@/components/ui/Button';
-import { FiClock, FiStar, FiUsers, FiBookmark } from 'react-icons/fi';
+import { useState } from "react";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import Button from "@/components/ui/Button";
+import { FiClock, FiStar, FiUsers, FiBookmark } from "react-icons/fi";
+import Link from "next/link";
 
 const categories = [
-  { id: 'all', name: 'Semua Kursus' },
-  { id: 'programming', name: 'Pemrograman' },
-  { id: 'design', name: 'Desain' },
-  { id: 'business', name: 'Bisnis' },
-  { id: 'marketing', name: 'Marketing' },
+  { id: "all", name: "Semua Kursus" },
+  { id: "programming", name: "Pemrograman" },
+  { id: "design", name: "Desain" },
+  { id: "business", name: "Bisnis" },
+  { id: "marketing", name: "Marketing" },
 ];
 
 const courses = [
   {
     id: 1,
-    title: 'Dasar-Dasar React.js untuk Pemula',
-    description: 'Pelajari dasar-dasar React.js untuk membangun aplikasi web modern yang responsif dan interaktif.',
-    instructor: 'Budi Santoso',
-    duration: '12 jam',
-    level: 'Pemula',
+    title: "Dasar-Dasar React.js untuk Pemula",
+    description:
+      "Pelajari dasar-dasar React.js untuk membangun aplikasi web modern yang responsif dan interaktif.",
+    instructor: "Budi Santoso",
+    duration: "12 jam",
+    level: "Pemula",
     students: 1245,
     rating: 4.7,
-    category: 'programming',
-    image: '/images/course-react.jpg',
+    category: "programming",
+    image: "/images/course-react.jpg",
   },
   {
     id: 2,
-    title: 'UI/UX Design Fundamentals',
-    description: 'Kuasai prinsip-prinsip dan praktik terbaik dalam merancang antarmuka pengguna yang efektif.',
-    instructor: 'Diana Putri',
-    duration: '18 jam',
-    level: 'Menengah',
+    title: "UI/UX Design Fundamentals",
+    description:
+      "Kuasai prinsip-prinsip dan praktik terbaik dalam merancang antarmuka pengguna yang efektif.",
+    instructor: "Diana Putri",
+    duration: "18 jam",
+    level: "Menengah",
     students: 980,
     rating: 4.9,
-    category: 'design',
-    image: '/images/course-ux.jpg',
+    category: "design",
+    image: "/images/course-ux.jpg",
   },
   {
     id: 3,
-    title: 'Digital Marketing Strategy',
-    description: 'Strategi pemasaran digital terbaru untuk meningkatkan brand awareness dan konversi.',
-    instructor: 'Rudi Hartono',
-    duration: '15 jam',
-    level: 'Semua Level',
+    title: "Digital Marketing Strategy",
+    description:
+      "Strategi pemasaran digital terbaru untuk meningkatkan brand awareness dan konversi.",
+    instructor: "Rudi Hartono",
+    duration: "15 jam",
+    level: "Semua Level",
     students: 1850,
     rating: 4.6,
-    category: 'marketing',
-    image: '/images/course-marketing.jpg',
+    category: "marketing",
+    image: "/images/course-marketing.jpg",
   },
   {
     id: 4,
-    title: 'E-Commerce Business Masterclass',
-    description: 'Panduan lengkap membangun dan mengembangkan bisnis e-commerce yang sukses dari nol.',
-    instructor: 'Sinta Wijaya',
-    duration: '24 jam',
-    level: 'Lanjutan',
+    title: "E-Commerce Business Masterclass",
+    description:
+      "Panduan lengkap membangun dan mengembangkan bisnis e-commerce yang sukses dari nol.",
+    instructor: "Sinta Wijaya",
+    duration: "24 jam",
+    level: "Lanjutan",
     students: 756,
     rating: 4.8,
-    category: 'business',
-    image: '/images/course-business.jpg',
+    category: "business",
+    image: "/images/course-business.jpg",
   },
 ];
 
 const CoursesSection = () => {
-  const [activeCategory, setActiveCategory] = useState('all');
+  const [activeCategory, setActiveCategory] = useState("all");
 
-  const filteredCourses = activeCategory === 'all'
-    ? courses
-    : courses.filter(course => course.category === activeCategory);
+  const filteredCourses =
+    activeCategory === "all"
+      ? courses
+      : courses.filter((course) => course.category === activeCategory);
 
   return (
-    <section id="courses" className="bg-neutral-50 py-20 dark:bg-neutral-800/30">
+    <section
+      id="courses"
+      className="bg-neutral-50 py-20 dark:bg-neutral-800/30"
+    >
       <div className="container mx-auto px-4 md:px-8">
-        <motion.div 
+        <motion.div
           className="mx-auto mb-16 max-w-3xl text-center"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -86,7 +95,8 @@ const CoursesSection = () => {
             Jelajahi Kursus Kami
           </h2>
           <p className="text-lg text-neutral-600 dark:text-neutral-300">
-            Pilih dari berbagai kursus berkualitas tinggi yang dirancang oleh para ahli
+            Pilih dari berbagai kursus berkualitas tinggi yang dirancang oleh
+            para ahli
           </p>
         </motion.div>
 
@@ -98,8 +108,8 @@ const CoursesSection = () => {
                 onClick={() => setActiveCategory(category.id)}
                 className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                   activeCategory === category.id
-                    ? 'bg-primary-400 text-white'
-                    : 'bg-white text-neutral-600 hover:bg-neutral-100 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700'
+                    ? "bg-primary-400 text-white"
+                    : "bg-white text-neutral-600 hover:bg-neutral-100 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
                 }`}
               >
                 {category.name}
@@ -108,10 +118,7 @@ const CoursesSection = () => {
           </div>
         </div>
 
-        <motion.div 
-          className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4"
-          layout
-        >
+        <motion.div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4" layout>
           {filteredCourses.map((course) => (
             <motion.div
               key={course.id}
@@ -165,7 +172,11 @@ const CoursesSection = () => {
                 </div>
               </div>
               <div className="border-t border-neutral-100 px-5 py-3 dark:border-neutral-700">
-                <Button variant="primary" fullWidth>Lihat Kursus</Button>
+                <Link href={`/courses/${course.id}`}>
+                  <Button variant="primary" fullWidth>
+                    Lihat Kursus
+                  </Button>
+                </Link>
               </div>
             </motion.div>
           ))}

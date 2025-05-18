@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/redux/store';
-import { toggleTheme } from '@/redux/features/themeSlice';
-import { FiSun, FiMoon, FiMenu, FiX } from 'react-icons/fi';
-import Button from '@/components/ui/Button';
-import Logo from '@/components/ui/Logo';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { toggleTheme } from "@/redux/features/themeSlice";
+import { FiSun, FiMoon, FiMenu, FiX } from "react-icons/fi";
+import Button from "@/components/ui/Button";
+import Logo from "@/components/ui/Logo";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -18,7 +18,7 @@ const Header = () => {
 
   useEffect(() => {
     setIsMounted(true);
-    
+
     const handleScroll = () => {
       if (window.scrollY > 10) {
         setIsScrolled(true);
@@ -27,8 +27,8 @@ const Header = () => {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -37,7 +37,7 @@ const Header = () => {
   // Render theme button only after client-side hydration
   const renderThemeButton = () => {
     if (!isMounted) return null;
-    
+
     return (
       <button
         onClick={handleThemeToggle}
@@ -53,8 +53,8 @@ const Header = () => {
     <header
       className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? 'bg-white/90 shadow backdrop-blur-md dark:bg-neutral-900/90'
-          : 'bg-transparent'
+          ? "bg-white/90 shadow backdrop-blur-md dark:bg-neutral-900/90"
+          : "bg-transparent"
       }`}
     >
       <div className="container mx-auto flex items-center justify-between px-4 py-4 md:px-8">

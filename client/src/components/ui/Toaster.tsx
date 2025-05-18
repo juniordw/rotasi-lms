@@ -1,3 +1,6 @@
+// src/components/ui/Toaster.tsx
+'use client';
+
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { FiAlertCircle, FiCheckCircle, FiInfo, FiX } from 'react-icons/fi';
 
