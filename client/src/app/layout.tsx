@@ -1,3 +1,4 @@
+// src/app/layout.tsx
 import './globals.css'
 import type { Metadata } from 'next'
 import Providers from './providers'
@@ -12,7 +13,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  // This prevents hydration mismatch by not adding dark class during SSR
   return (
     <html lang="id" suppressHydrationWarning>
       <body suppressHydrationWarning>
