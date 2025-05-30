@@ -10,6 +10,7 @@ export interface User {
   created_at: string;
   updated_at?: string;
   last_login?: string;
+  is_active?: boolean; // Make this optional to handle cases where it might not be present
 }
 
 export interface UserFormData {
@@ -23,4 +24,8 @@ export interface PasswordData {
   currentPassword: string;
   newPassword: string;
   confirmPassword: string;
+}
+
+export interface ChangeRoleData {
+  role: string;
 }

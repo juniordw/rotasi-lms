@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 
 // Secret key for JWT verification - should match your backend
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'your-secret-key-here');
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'inilhorotasi');
 
 export async function middleware(request: NextRequest) {
   // Get token from cookies
@@ -108,14 +108,33 @@ export async function middleware(request: NextRequest) {
         return response;
       }
 
-      // Check role-based access
-      if (
-        (isAdminPath && role !== 'admin') ||
-        (isInstructorPath && role !== 'instructor' && role !== 'admin') ||
-        (isStudentPath && role !== 'student')
-      ) {
-        // Redirect to dashboard on unauthorized access
-        url.pathname = '/dashboard';
+      // Check role-based access with improved logic
+      let hasAccess = false;
+
+      if (isAdminPath) {
+        // Only admins can access admin paths
+        hasAccess = role === 'admin';
+      } else if (isInstructorPath) {
+        // Instructors and admins can access instructor paths
+        hasAccess = role === 'instructor' || role === 'admin';
+      } else if (isStudentPath) {
+        // Only students can access student-specific paths (not admins/instructors)
+        hasAccess = role === 'student';
+      }
+
+      if (!hasAccess) {
+        // Redirect to appropriate dashboard based on role
+        let redirectPath = '/dashboard';
+        
+        if (role === 'admin') {
+          redirectPath = '/dashboard/users'; // Default admin page
+        } else if (role === 'instructor') {
+          redirectPath = '/dashboard/courses'; // Default instructor page
+        } else if (role === 'student') {
+          redirectPath = '/dashboard/courses'; // Default student page
+        }
+        
+        url.pathname = redirectPath;
         return NextResponse.redirect(url);
       }
     }
@@ -140,6 +159,6 @@ export async function middleware(request: NextRequest) {
 // Define which paths should be handled by this middleware
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|images).*)',
   ],
 };
